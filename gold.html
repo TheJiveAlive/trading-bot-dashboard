@@ -1,0 +1,93 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="refresh" content="60"/>
+<title>Gold Bot</title><style>
+:root { --bg:#05070D; --panel:#0A0F1A; --line:#1B2334; --ink:#F2F6FE;
+  --mut:#8B99B5; --dim:#57678A; --gold:#E8C464; --gain:#2EE58C;
+  --loss:#FF6F66; --warn:#FFB454; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:
+  radial-gradient(1100px 480px at 85% -12%, #1a1508 0%, transparent 60%),
+  radial-gradient(700px 420px at -10% 8%, #0A1426 0%, transparent 55%), var(--bg);
+  color:var(--ink); font-size:14px; padding:22px 16px 64px;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }
+.wrap { max-width:860px; margin:0 auto; }
+.mono { font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  font-variant-numeric:tabular-nums; }
+header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.brand { font-size:16px; font-weight:800; } .brand .z { color:var(--gold); }
+.pill { border:1px solid #4a3a14; border-radius:99px; padding:4px 11px; font-size:9.5px;
+  font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--warn);
+  background:#171106; }
+.pill.kill { color:#fff; background:#3a0d0d; border-color:#7c2020; }
+.spot { margin-left:auto; font-size:20px; font-weight:800; }
+.upd { color:var(--dim); font-size:11px; width:100%; }
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
+  gap:10px; margin-bottom:14px; }
+.tile { background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:12px 14px; }
+.tile .k { color:var(--mut); font-size:9.5px; font-weight:800; letter-spacing:1.4px;
+  text-transform:uppercase; margin-bottom:6px; }
+.tile .v { font-size:17px; font-weight:750; }
+.gain { color:var(--gain); } .loss { color:var(--loss); } .mut { color:var(--mut); }
+.gold { color:var(--gold); }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:14px 16px; margin-bottom:14px; }
+.panel h2 { font-size:10.5px; font-weight:800; letter-spacing:1.6px;
+  text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.row { display:flex; gap:8px; padding:5px 0; border-bottom:1px solid #10182a;
+  font-size:12.5px; align-items:baseline; }
+.row:last-child { border-bottom:none; }
+.row .src { color:var(--dim); font-size:10px; text-transform:uppercase; flex:none; width:64px; }
+.row a { color:var(--ink); text-decoration:none; }
+.row a:hover { color:var(--gold); }
+.tilt { flex:none; width:14px; font-weight:800; }
+svg { display:block; width:100%; }
+.bar { height:8px; border-radius:99px; background:#131c2f; position:relative; margin:6px 0 2px; }
+.bar i { position:absolute; top:-3px; width:3px; height:14px; border-radius:2px;
+  background:var(--gold); }
+.legend { display:flex; justify-content:space-between; color:var(--dim); font-size:10px; }
+table { width:100%; border-collapse:collapse; font-size:12.5px; }
+td,th { padding:5px 6px; text-align:right; border-bottom:1px solid #10182a; }
+th { color:var(--mut); font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; }
+td:first-child, th:first-child { text-align:left; }
+footer { color:var(--dim); font-size:11px; text-align:center; margin-top:20px; }
+</style></head><body><div class="wrap">
+<header>
+  <div class="brand"><span class="z">◆</span> GOLD BOT</div>
+  <span class="pill">PAPER</span>
+  <div class="spot mono">$4085.60 <span class="mut" style="font-size:11px">XAU/USD · gold-api</span></div>
+  <div class="upd">updated 13:29:37 UTC · refreshes every 60s · tradinghost · <a href="gold_chart.html">live chart &amp; reasoning →</a></div>
+  <div class="upd" style="margin-top:4px">broker: <span class="gain">● OANDA practice</span> · account 101-004-39801162-001 · balance 99999.3507 GBP · <span class="mut">executing demo trades</span></div>
+</header>
+<div class="tiles">
+  <div class="tile"><div class="k">Equity</div><div class="v mono">$134030.13</div></div>
+  <div class="tile"><div class="k">Cash</div><div class="v mono">$134030.13</div></div>
+  <div class="tile"><div class="k">Day P/L</div><div class="v mono loss">−$0.86</div></div>
+  <div class="tile"><div class="k">Week P/L</div><div class="v mono loss">−$0.86</div></div>
+  <div class="tile"><div class="k">Trades today</div><div class="v mono">2</div></div>
+  <div class="tile"><div class="k">Macro bias</div><div class="v mono mut">+0</div></div>
+</div>
+<div class="panel"><h2>Equity curve</h2><svg viewBox="0 0 640 80" preserveAspectRatio="none" height="80"><polyline fill="none" stroke="#E8C464" stroke-width="1.6" points="0.0,74.0 10.3,74.0 20.6,74.0 31.0,74.0 41.3,74.0 51.6,74.0 61.9,74.0 72.3,74.0 82.6,74.0 92.9,74.0 103.2,74.0 113.5,74.0 123.9,74.0 134.2,74.0 144.5,74.0 154.8,74.0 165.2,74.0 175.5,74.0 185.8,74.0 196.1,74.0 206.5,74.0 216.8,74.0 227.1,74.0 237.4,74.0 247.7,74.0 258.1,74.0 268.4,74.0 278.7,74.0 289.0,74.0 299.4,74.0 309.7,74.0 320.0,74.0 330.3,74.0 340.6,74.0 351.0,74.0 361.3,74.0 371.6,74.0 381.9,74.0 392.3,74.0 402.6,74.0 412.9,74.0 423.2,74.0 433.5,74.0 443.9,74.0 454.2,74.0 464.5,74.0 474.8,74.0 485.2,74.0 495.5,74.0 505.8,74.0 516.1,74.0 526.5,74.0 536.8,74.0 547.1,74.0 557.4,6.0 567.7,6.0 578.1,6.0 588.4,6.0 598.7,6.0 609.0,6.0 619.4,6.0 629.7,6.0 640.0,6.0"/></svg><div class="legend"><span class="mono">$10000.00</span><span class="mono">$134030.13</span></div></div>
+<div class="panel"><h2>Position</h2><div class="mut">flat — waiting for setup</div></div>
+<div class="panel"><h2>Signal</h2>
+  <div class="row"><span class="src">trend 1h</span><span class="loss">DOWN</span>
+    <span class="mut mono">ema50 4051.06 / ema200 4074.51</span></div>
+  <div class="row"><span class="src">momentum</span><span class="mono">RSI(5m) 59.4</span>
+    <span class="mut mono">ATR(1h) $17.4</span></div>
+  <div class="row"><span class="src">macro</span><span class="mut">real yields rising (+0.06 5d, bearish); DXY falling (-0.43% 5d)</span></div>
+  <div class="row"><span class="src">t-view</span>
+    <div style="flex:1"><div class="bar"><i style="left:32%"></i></div>
+    <div class="legend"><span>strong sell</span><span>neutral</span><span>strong buy</span></div></div>
+    <span class="mono loss">-0.35</span></div>
+</div>
+<div class="panel"><h2>Positioning &amp; macro</h2>
+  <div class="row"><span class="src">COT</span><span class="mono">spec net +194k (52.2% of OI) · 2026-07-07</span></div>
+  <div class="row"><span class="src">10y real</span><span class="mono">2.32% (5d +0.06)</span></div>
+  <div class="row"><span class="src">DXY</span><span class="mono">100.71 (5d -0.43%)</span></div>
+</div>
+<div class="panel"><h2>Claude deep analysis · 2026-07-14</h2><div class="row"><span class="src">regime</span><span>range-bound below ATH, yield/Fed-driven, with Iran-Hormuz oil shock as wildcard</span></div><div class="row"><span class="src">notes</span><span class="mut">Gold sits ~$4,000-4,020, well off record highs, pressured by rising real yields (bot&#x27;s own series: +0.06 over 5d, ~2.3% level) and a 10Y nominal yield at a 2-month high near 4.62%. The proximate driver is an Iran/Strait-of-Hormuz oil shock pushing crude and inflation expectations up, which markets are reading as raising Fed hike odds (CME FedWatch shows a real, non-trivial probability of a Septemb</span></div></div>
+<div class="panel"><h2>Gold news wire</h2><div class="row"><span class="tilt loss">-</span><span class="src">investing</span><a href="https://www.investing.com/news/commodities-news/russia-accuses-ukraine-of-terrorism-in-sea-of-azov-as-kyiv-opens-new-front-in-war-4791022" target="_blank" rel="noopener">Russia accuses Ukraine of terrorism in Sea of Azov as Kyiv opens new front in war</a></div><div class="row"><span class="tilt loss">-</span><span class="src">investing</span><a href="https://www.investing.com/news/commodities-news/baltic-dry-bulk-freight-index-hits-onemonth-high-on-tuesday-93CH-4790988" target="_blank" rel="noopener">Baltic dry bulk freight index hits one-month high on Tuesday</a></div><div class="row"><span class="tilt loss">-</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/us-cpi-data-set-to-show-inflation-cooled-in-june-due-to-tumbling-fuel-prices-202607140830" target="_blank" rel="noopener">Breaking: US CPI inflation declines to 3.5% in June vs. 3.8% expected</a></div><div class="row"><span class="tilt loss">-</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/euro-rate-support-at-risk-against-us-dollar-with-energy-shock-ing-202607141227" target="_blank" rel="noopener">Euro: Rate support at risk against US Dollar with energy shock – ING</a></div><div class="row"><span class="tilt loss">-</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/new-zealand-dollar-hits-fresh-three-month-highs-as-central-banks-divergence-hurts-the-aussie-202607141205" target="_blank" rel="noopener">New Zealand Dollar hits fresh three-month highs as central banks divergence hurts the Aussie</a></div><div class="row"><span class="tilt loss">-</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/us-dollar-inflation-risks-skewed-to-downside-commerzbank-202607141159" target="_blank" rel="noopener">US Dollar: Inflation risks skewed to downside – Commerzbank</a></div><div class="row"><span class="tilt mut">·</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/united-states-dollar-index-holds-correction-near-10110-eyes-on-inflation-data-202607141156" target="_blank" rel="noopener">United States Dollar Index holds correction near 101.10, eyes on inflation data</a></div><div class="row"><span class="tilt gain">+</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/new-zealand-dollar-gulf-re-escalation-favours-kiwi-outperformance-ing-202607140945" target="_blank" rel="noopener">New Zealand Dollar: Gulf re-escalation favours Kiwi outperformance – ING</a></div><div class="row"><span class="tilt mut">·</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/fed-guidance-reaction-function-and-rates-bny-202607140933" target="_blank" rel="noopener">Fed: Guidance, reaction function and rates – BNY</a></div><div class="row"><span class="tilt mut">·</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/indian-rupee-oil-rebound-clouds-inr-gains-against-us-dollar-dbs-202607140913" target="_blank" rel="noopener">Indian Rupee: Oil rebound clouds INR gains against US Dollar – DBS</a></div><div class="row"><span class="tilt mut">·</span><span class="src">fxstreet</span><a href="https://www.fxstreet.com/news/usd-jpy-price-forecast-slides-to-16200-as-constructive-setup-favors-bulls-before-us-cpi-202607140857" target="_blank" rel="noopener">USD/JPY Price Forecast: Slides to 162.00 as constructive setup favors bulls before US CPI</a></div><div class="row"><span class="tilt mut">·</span><span class="src">gnews</span><a href="https://news.google.com/rss/articles/CBMinwFBVV95cUxOUnlRai1GbUFVTGlQOVVrUW5PRUwyQzQwZV9Sd3pkMFc3OXpSSjRQUkRuRjRsTC0tZEdzN09iNElaVFVycHFGamdFOFp5S3J4NWNnRWdUYkJ4TWNEcUFUcVdlNnMweHpOVVBsUDNwRnJ5OGVFeVl2bDNaNkhac0hialRMX2IzQUtLSWVsTEI4d2EzM19Oc3NBcFJaZjRYMjQ?oc=5" target="_blank" rel="noopener">China gold market update: June concludes a divided H1 | Post by Ray Jia | Insights - World Gold Council</a></div><div class="row"><span class="tilt mut">·</span><span class="src">gnews</span><a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxPUGd1MEQ4M1VsX0VPYTBDUUVSWE81eUxWclV1N3FjZG5BLVdaYzI4MU03UERSUEJoODNGRTN3c1JiMUp4bWEyM2xHMXJ5TFM0MEhiRFphaXVveVVNbFpPVTNjODgweWN4TFIxZVdtZUdjcG9Dd182dFZyZWNFTnBjZnJFcnNjdGlF?oc=5" target="_blank" rel="noopener">What Affects Gold Prices? 6 Key Factors Explained - XTB.com</a></div><div class="row"><span class="tilt mut">·</span><span class="src">gnews</span><a href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxQcGp0UVJqdGx1aFdvNTQyeThIeDJ1TkhOUzZMMjZjMnRKMUl5bzJVQXVvM0VEUDRIZm90Tl81eG8xOEMxSm5tWUFnUGJSY2xxbnlGU0M2S3Nzc2NSaUliSWtSQ1Y3TE9VM1hjd201dTdTRS1kM0lCaEtEeWk1N2IxTmRaZ2JzTzZhMTQw?oc=5" target="_blank" rel="noopener">Gold Recovers as Investors Look Ahead to US Inflation and Fed Signals - Yahoo Finance UK</a></div></div>
+<div class="panel"><h2>Recent trades</h2><table><tr><th>opened</th><th>side</th><th>oz</th><th>entry</th><th>exit</th><th>p/l</th><th>via</th></tr><tr><td class="mono">07-14 13:27</td><td class="loss">SHORT</td><td class="mono">1.0000</td><td class="mono">$4083.52</td><td class="mono">$4084.47</td><td class="mono loss">−$0.95</td><td>SELFTEST cover-short</td></tr><tr><td class="mono">07-14 13:27</td><td class="gain">LONG</td><td class="mono">1.0000</td><td class="mono">$4083.80</td><td class="mono">$4083.89</td><td class="mono gain">+$0.09</td><td>SELFTEST close-long</td></tr></table></div>
+<footer>paper account · api calls today: calendar 2, cftc 1, fred 5, gold_api 512, news_rss 75, tradingview 47, yahoo 191 · goldbot on tradinghost</footer>
+</div></body></html>

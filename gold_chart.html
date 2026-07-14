@@ -1,0 +1,155 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Gold Bot · Live Chart</title><style>
+:root{--bg:#05070D;--panel:#0A0F1A;--line:#1B2334;--ink:#F2F6FE;--mut:#8B99B5;
+ --dim:#57678A;--gold:#E8C464;--gain:#2EE58C;--loss:#FF6F66;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(1100px 480px at 85% -12%,#1a1508 0,transparent 60%),var(--bg);
+ color:var(--ink);font:14px Inter,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:16px}
+.mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.brand{font-size:16px;font-weight:800}.brand .z{color:var(--gold)}
+.pill{border:1px solid #4a3a14;border-radius:99px;padding:3px 10px;font-size:9.5px;font-weight:800;
+ letter-spacing:1.4px;text-transform:uppercase;color:#FFB454;background:#171106}
+.pill.kill{color:#fff;background:#3a0d0d;border-color:#7c2020}
+.spot{margin-left:auto;font-size:22px;font-weight:800}
+.sub{color:var(--dim);font-size:11px;width:100%}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+#chart{width:100%;height:420px;display:block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--mut);font-size:11px;margin-top:8px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+h2{font-size:10.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.comment{border-left:2px solid var(--gold);padding:2px 0 2px 10px;color:var(--ink);font-size:12.5px;line-height:1.5}
+.comment .when{color:var(--dim);font-size:10px;display:block;margin-bottom:3px}
+.feed{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.th{font-size:11.5px;line-height:1.45;padding-bottom:6px;border-bottom:1px solid #10182a}
+.th .t{color:var(--dim);font-size:9.5px;margin-right:6px}
+.th.enter{color:var(--gain)}.th.exit{color:var(--gold)}.th.block{color:var(--loss)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;margin-top:8px}
+.stats b{font-weight:750}.gain{color:var(--gain)}.loss{color:var(--loss)}.mut{color:var(--mut)}
+footer{color:var(--dim);font-size:11px;text-align:center;margin-top:16px}
+a{color:var(--gold);text-decoration:none}
+</style></head><body><div class="wrap">
+<header>
+ <div class="brand"><span class="z">◆</span> GOLD BOT · LIVE</div>
+ <span class="pill" id="mode">—</span><span id="killpill"></span>
+ <div class="spot mono" id="spot">—</div>
+ <div class="sub" id="broker" style="width:100%;margin-bottom:2px"></div>
+ <div class="sub" id="sub">connecting…</div>
+</header>
+<div class="grid">
+ <div class="card">
+  <canvas id="chart"></canvas>
+  <div class="legend">
+   <span><span class="dot" style="background:var(--gold)"></span>XAU/USD (tick)</span>
+   <span><span class="dot" style="background:var(--gain)"></span>entry</span>
+   <span><span class="dot" style="background:var(--loss)"></span>exit (loss)</span>
+   <span><span class="dot" style="background:#3EDDC5"></span>exit (win)</span>
+   <span class="mut">— — stop / target on open position</span>
+  </div>
+  <div class="stats" id="stats"></div>
+ </div>
+ <div>
+  <div class="card" style="margin-bottom:12px">
+   <h2>Claude commentary</h2>
+   <div id="commentary" class="comment"><span class="when">—</span>waiting for first intraday read…</div>
+  </div>
+  <div class="card">
+   <h2>Bot reasoning · live</h2>
+   <div class="feed" id="feed"></div>
+  </div>
+ </div>
+</div>
+<footer>auto-refreshes every 15s · <a href="gold.html">full dashboard →</a> · goldbot on tradinghost</footer>
+</div>
+<script>
+const cv=document.getElementById('chart'),ctx=cv.getContext('2d');
+function fmtAge(s){s=Math.max(0,s|0);return s<90?s+'s':(s<5400?(s/60|0)+'m':(s/3600|0)+'h');}
+function timeStr(ts){return new Date(ts*1000).toISOString().substr(11,5);}
+function draw(d){
+ const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;
+ cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ const ticks=d.ticks||[];if(ticks.length<2){ctx.fillStyle='#57678A';ctx.fillText('accumulating ticks…',12,20);return;}
+ const pad={l:8,r:56,t:12,b:20};
+ let t0=ticks[0][0],t1=ticks[ticks.length-1][0];
+ let lo=Infinity,hi=-Infinity;for(const[,p]of ticks){lo=Math.min(lo,p);hi=Math.max(hi,p);}
+ // include open position stop/target + trade markers in y-range
+ const op=d.open_position;if(op){lo=Math.min(lo,op.stop);hi=Math.max(hi,op.target);}
+ const inWin=ts=>ts>=t0-1&&ts<=t1+1;
+ (d.trades||[]).forEach(tr=>{if(inWin(tr.open)){lo=Math.min(lo,tr.entry);hi=Math.max(hi,tr.entry);}
+   if(tr.exit&&inWin(tr.close)){lo=Math.min(lo,tr.exit);hi=Math.max(hi,tr.exit);}});
+ const span=(hi-lo)||1;lo-=span*0.08;hi+=span*0.08;
+ const X=ts=>pad.l+(W-pad.l-pad.r)*(ts-t0)/((t1-t0)||1);
+ const Y=p=>pad.t+(H-pad.t-pad.b)*(1-(p-lo)/(hi-lo));
+ // grid + price axis
+ ctx.strokeStyle='#10182a';ctx.fillStyle='#57678A';ctx.font='10px ui-monospace,monospace';ctx.lineWidth=1;
+ for(let i=0;i<=4;i++){const p=lo+(hi-lo)*i/4,y=Y(p);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+   ctx.fillText('$'+p.toFixed(1),W-pad.r+4,y+3);}
+ // open position stop/target dashed
+ if(op){ctx.setLineDash([4,4]);
+   ctx.strokeStyle='rgba(255,111,102,.6)';ctx.beginPath();ctx.moveTo(pad.l,Y(op.stop));ctx.lineTo(W-pad.r,Y(op.stop));ctx.stroke();
+   ctx.strokeStyle='rgba(46,229,140,.6)';ctx.beginPath();ctx.moveTo(pad.l,Y(op.target));ctx.lineTo(W-pad.r,Y(op.target));ctx.stroke();
+   ctx.setLineDash([]);}
+ // price line
+ ctx.strokeStyle='#E8C464';ctx.lineWidth=1.6;ctx.beginPath();
+ ticks.forEach(([ts,p],i)=>{const x=X(ts),y=Y(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();
+ // last price dot
+ const last=ticks[ticks.length-1];ctx.fillStyle='#E8C464';ctx.beginPath();ctx.arc(X(last[0]),Y(last[1]),3,0,7);ctx.fill();
+ // trade markers
+ (d.trades||[]).forEach(tr=>{
+   if(inWin(tr.open)){const x=X(tr.open),y=Y(tr.entry);ctx.fillStyle='#2EE58C';
+     ctx.beginPath();ctx.moveTo(x,y+7);ctx.lineTo(x-5,y+15);ctx.lineTo(x+5,y+15);ctx.closePath();ctx.fill();}
+   if(tr.exit&&inWin(tr.close)){const x=X(tr.close),y=Y(tr.exit);ctx.fillStyle=(tr.pnl>=0)?'#3EDDC5':'#FF6F66';
+     ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x-5,y-15);ctx.lineTo(x+5,y-15);ctx.closePath();ctx.fill();}});
+ // time axis ends
+ ctx.fillStyle='#57678A';ctx.fillText(timeStr(t0)+' UTC',pad.l,H-6);
+ ctx.fillText(timeStr(t1),W-pad.r-34,H-6);
+}
+function render(d){
+ document.getElementById('mode').textContent=(d.mode||'?').toUpperCase();
+ document.getElementById('killpill').innerHTML=d.kill?'<span class="pill kill">KILL</span>':'';
+ const sp=d.spot&&d.spot.price;
+ document.getElementById('spot').textContent=sp?('$'+sp.toFixed(2)):'—';
+ const bk=d.broker||{};
+ document.getElementById('broker').innerHTML = bk.name==='oanda'
+   ? `<span style="color:${bk.connected?'#2EE58C':'#FF6F66'}">● OANDA ${bk.env||''}</span> · account ${bk.account||'?'} · balance ${bk.connected?(bk.balance+' '+(bk.currency||'')):'—'} · executing demo trades`
+   : '<span style="color:#8B99B5">● paper (simulated fills)</span>';
+ const age=d.spot?fmtAge((Date.now()/1000)-d.spot.ts):'—';
+ const sig=d.signal||{};
+ let evtxt='';
+ if(d.next_event){const mins=((d.next_event.ts-Date.now()/1000)/60);
+   if(mins>0&&mins<1440)evtxt=` · next: ${d.next_event.ccy} ${d.next_event.title} in ${mins<60?(mins|0)+'m':(mins/60).toFixed(1)+'h'}`;}
+ document.getElementById('sub').textContent=
+   `updated ${age} ago · 1h trend ${sig.trend_up?'UP':'DOWN'} · bias ${(sig.macro_bias>=0?'+':'')+(sig.macro_bias||0)}`+
+   (sig.rsi_5m!=null?` · RSI5m ${sig.rsi_5m}`:'')+
+   (d.tradingview&&d.tradingview['Recommend.All']!=null?` · t-view ${d.tradingview['Recommend.All'].toFixed(2)}`:'')+
+   (d.news_sentiment?` · news AI ${d.news_sentiment.net>0?'+':''}${d.news_sentiment.net} (${d.news_sentiment.counts['+']}▲/${d.news_sentiment.counts['-']}▼)`:'')+evtxt;
+ // stats
+ const cl=(d.trades||[]).filter(t=>t.status==='closed');
+ const wins=cl.filter(t=>t.pnl>0).length;
+ const tot=cl.reduce((a,t)=>a+(t.pnl||0),0);
+ document.getElementById('stats').innerHTML=
+   `<span class="mut">equity</span> <b class="mono">$${(d.equity||0).toFixed(2)}</b>`+
+   `<span class="mut">closed trades</span> <b>${cl.length}</b>`+
+   (cl.length?`<span class="mut">win rate</span> <b>${(100*wins/cl.length|0)}%</b>`:'')+
+   `<span class="mut">net P/L</span> <b class="${tot>=0?'gain':'loss'} mono">${tot>=0?'+':'−'}$${Math.abs(tot).toFixed(2)}</b>`+
+   (d.open_position?`<span class="gain">● LONG ${d.open_position.qty_oz.toFixed(4)}oz @ $${d.open_position.entry.toFixed(2)}</span>`:'<span class="mut">● flat</span>');
+ // commentary
+ if(d.commentary&&d.commentary.text){
+   document.getElementById('commentary').innerHTML=
+     `<span class="when">${new Date((d.commentary.ts||0)*1000).toISOString().substr(5,11).replace('T',' ')} UTC</span>`+
+     d.commentary.text.replace(/</g,'&lt;');}
+ // reasoning feed
+ document.getElementById('feed').innerHTML=(d.thoughts||[]).map(t=>{
+   let c=/^ENTERED/.test(t.text)?'enter':/^EXITED/.test(t.text)?'exit':/blocked/.test(t.text)?'block':'';
+   return `<div class="th ${c}"><span class="t mono">${timeStr(t.ts)}</span>${t.text.replace(/</g,'&lt;')}</div>`;}).join('');
+ draw(d);
+}
+async function tick(){try{const r=await fetch('gold_chart_data.json?t='+Date.now(),{cache:'no-store'});
+  render(await r.json());}catch(e){document.getElementById('sub').textContent='feed unavailable — '+e;}}
+window.addEventListener('resize',()=>fetch('gold_chart_data.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(draw).catch(()=>{}));
+tick();setInterval(tick,15000);
+</script></body></html>
