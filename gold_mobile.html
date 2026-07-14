@@ -75,6 +75,7 @@ a{color:var(--ink);text-decoration:none}
  <div class="kv"><span class="l">Macro bias</span><span id="bias" class="mono">—</span></div>
  <div class="kv"><span class="l">5m RSI</span><span id="rsi" class="mono">—</span></div>
  <div class="kv"><span class="l">News AI sentiment</span><span id="news_ai" class="mono">—</span></div>
+ <div class="kv"><span class="l">HMM regime</span><span id="regime" class="mono">—</span></div>
  <div class="kv"><span class="l">Next event</span><span id="nextev" class="mono">—</span></div>
 </div>
 
@@ -163,6 +164,10 @@ function render(d){
  $('rsi').textContent=sig.rsi_5m??'—';
  const ns=d.news_sentiment;
  $('news_ai').innerHTML=ns?`<span class="${ns.net>0?'gain':ns.net<0?'loss':'mut'}">${ns.net>0?'+':''}${ns.net}</span> <span class="mut">(${ns.counts['+']}▲/${ns.counts['-']}▼)</span>`:'—';
+ const rg=d.regime;
+ if(rg&&rg.regime){const rc=rg.regime==='trend'?'gain':rg.regime==='crash'?'loss':'gold';
+   $('regime').innerHTML=`<span class="${rc}">${rg.regime.toUpperCase()}</span> <span class="mut">${Math.round((rg.probs?.[rg.regime]||0)*100)}%</span>`;}
+ else $('regime').innerHTML='<span class="mut">—</span>';
  if(d.next_event){const m=(d.next_event.ts-Date.now()/1000)/60;
    $('nextev').innerHTML=m>0&&m<2880?`${d.next_event.ccy} ${d.next_event.title.substr(0,22)} <span class="gold">in ${m<60?(m|0)+'m':(m/60).toFixed(1)+'h'}</span>`:'—';}
  // best/worst
