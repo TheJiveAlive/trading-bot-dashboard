@@ -57,6 +57,10 @@ a{color:var(--gold);text-decoration:none}
    <h2>Claude commentary</h2>
    <div id="commentary" class="comment"><span class="when">—</span>waiting for first intraday read…</div>
   </div>
+  <div class="card" style="margin-bottom:12px">
+   <h2>Local AI · state of play <span style="color:var(--dim);font-weight:600">· every 10m</span></h2>
+   <div id="learnings" class="comment" style="border-left-color:#3EDDC5"><span class="when">—</span>—</div>
+  </div>
   <div class="card">
    <h2>Bot reasoning · live</h2>
    <div class="feed" id="feed"></div>
@@ -142,6 +146,10 @@ function render(d){
    document.getElementById('commentary').innerHTML=
      `<span class="when">${new Date((d.commentary.ts||0)*1000).toISOString().substr(5,11).replace('T',' ')} UTC</span>`+
      d.commentary.text.replace(/</g,'&lt;');}
+ if(d.learnings&&d.learnings.text){
+   document.getElementById('learnings').innerHTML=
+     `<span class="when">${new Date((d.learnings.ts||0)*1000).toISOString().substr(5,11).replace('T',' ')} UTC</span>`+
+     d.learnings.text.replace(/</g,'&lt;');}
  // reasoning feed
  document.getElementById('feed').innerHTML=(d.thoughts||[]).map(t=>{
    let c=/^ENTERED/.test(t.text)?'enter':/^EXITED/.test(t.text)?'exit':/blocked/.test(t.text)?'block':'';
