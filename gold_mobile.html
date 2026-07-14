@@ -1,0 +1,191 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#05070D"/>
+<title>Gold Bot</title><style>
+:root{--bg:#05070D;--panel:#0A0F1A;--line:#1B2334;--ink:#F2F6FE;--mut:#8B99B5;
+ --dim:#57678A;--gold:#E8C464;--gain:#2EE58C;--loss:#FF6F66;--teal:#3EDDC5;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);
+ font:15px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+ padding:12px 12px 40px;max-width:520px;margin:0 auto}
+.mono{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-variant-numeric:tabular-nums}
+.gain{color:var(--gain)}.loss{color:var(--loss)}.mut{color:var(--mut)}.gold{color:var(--gold)}
+.top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.brand{font-weight:800;font-size:16px}.brand .z{color:var(--gold)}
+.price{margin-left:auto;font-size:30px;font-weight:800}
+.sub{width:100%;font-size:11px;color:var(--dim);margin-bottom:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+ padding:14px;margin-bottom:12px}
+.card h2{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+ color:var(--gold);margin-bottom:10px}
+.big{font-size:22px;font-weight:800}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #10182a;font-size:14px}
+.kv:last-child{border:none}.kv .l{color:var(--mut)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:#0C1220;border:1px solid var(--line);border-radius:12px;padding:10px}
+.tile .k{color:var(--mut);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.tile .v{font-size:19px;font-weight:750;margin-top:3px}
+/* TP/SL gauge */
+.gauge{position:relative;height:46px;margin:14px 0 6px}
+.track{position:absolute;top:20px;left:0;right:0;height:6px;border-radius:99px;
+ background:linear-gradient(90deg,var(--loss),#2a3145 50%,var(--gain))}
+.mk{position:absolute;top:8px;transform:translateX(-50%);text-align:center;width:70px}
+.mk .dot{width:3px;height:20px;margin:0 auto;border-radius:2px}
+.mk .lb{font-size:9px;margin-top:2px;white-space:nowrap}
+.mk.price .dot{width:5px;height:26px;background:var(--gold);margin-top:-3px}
+.mk.price .lb{color:var(--gold);font-weight:800}
+.row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid #10182a;font-size:13px;align-items:baseline}
+.row:last-child{border:none}.row .t{color:var(--dim);font-size:10px;flex:none;width:40px}
+.pill{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 7px;
+ border-radius:99px;text-transform:uppercase}
+.pill.long{color:var(--gain);background:#06180f;border:1px solid #14432f}
+.pill.short{color:var(--loss);background:#1a0808;border:1px solid #5a1f1f}
+.tilt{flex:none;width:12px;font-weight:800}
+a{color:var(--ink);text-decoration:none}
+.dotc{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:5px}
+.comment{border-left:2px solid var(--teal);padding-left:9px;font-size:13px;color:var(--ink)}
+.comment .when{color:var(--dim);font-size:10px;display:block}
+.foot{text-align:center;color:var(--dim);font-size:10px;margin-top:6px}
+</style></head><body>
+<div class="top">
+ <span class="brand"><span class="z">◆</span> GOLD BOT</span>
+ <span id="modepill" class="pill mut" style="background:#171106;color:#FFB454">—</span>
+ <span class="price mono" id="price">—</span>
+</div>
+<div class="sub" id="sub">connecting…</div>
+
+<div class="card" id="poscard">
+ <h2>Position · live TP / SL</h2>
+ <div id="posbody"><span class="mut">—</span></div>
+</div>
+
+<div class="card">
+ <h2>Account</h2>
+ <div class="grid">
+  <div class="tile"><div class="k">Equity</div><div class="v mono" id="equity">—</div></div>
+  <div class="tile"><div class="k">Day P/L</div><div class="v mono" id="daypl">—</div></div>
+  <div class="tile"><div class="k">Trades today</div><div class="v mono" id="tdy">—</div></div>
+  <div class="tile"><div class="k">Win rate</div><div class="v mono" id="wr">—</div></div>
+ </div>
+</div>
+
+<div class="card">
+ <h2>Signal</h2>
+ <div class="kv"><span class="l">1h trend</span><span id="trend" class="mono">—</span></div>
+ <div class="kv"><span class="l">Macro bias</span><span id="bias" class="mono">—</span></div>
+ <div class="kv"><span class="l">5m RSI</span><span id="rsi" class="mono">—</span></div>
+ <div class="kv"><span class="l">News AI sentiment</span><span id="news_ai" class="mono">—</span></div>
+ <div class="kv"><span class="l">Next event</span><span id="nextev" class="mono">—</span></div>
+</div>
+
+<div class="card">
+ <h2>Best / worst trade</h2>
+ <div class="kv"><span class="l">Best</span><span id="best" class="mono gain">—</span></div>
+ <div class="kv"><span class="l">Worst</span><span id="worst" class="mono loss">—</span></div>
+</div>
+
+<div class="card">
+ <h2>Recent orders</h2>
+ <div id="orders"><span class="mut">no trades yet</span></div>
+</div>
+
+<div class="card">
+ <h2>Gold news</h2>
+ <div id="news"><span class="mut">—</span></div>
+</div>
+
+<div class="card">
+ <h2>Claude commentary</h2>
+ <div id="commentary" class="comment"><span class="when">—</span>—</div>
+</div>
+<div class="card">
+ <h2>Local AI · state of play</h2>
+ <div id="learnings" class="comment" style="border-left-color:var(--gold)"><span class="when">—</span>—</div>
+</div>
+
+<div class="card">
+ <h2>Schedule · when things run</h2>
+ <div id="sched"></div>
+</div>
+
+<div class="foot">auto-refreshes 15s · goldbot on tradinghost · <a class="gold" href="gold_chart.html">full chart →</a></div>
+
+<script>
+const $=id=>document.getElementById(id);
+function money(v){return (v>=0?'+':'−')+'$'+Math.abs(v).toFixed(2);}
+function ageStr(s){s=Math.max(0,s|0);return s<90?s+'s':(s<5400?(s/60|0)+'m':(s/3600|0)+'h');}
+function hhmm(ts){return new Date(ts*1000).toISOString().substr(11,5);}
+function gauge(p){
+ // p: {side,entry,stop,target,price}
+ const lo=Math.min(p.stop,p.target), hi=Math.max(p.stop,p.target), rng=(hi-lo)||1;
+ const pct=x=>Math.max(0,Math.min(100,(x-lo)/rng*100));
+ const slL=pct(p.stop), tpL=pct(p.target), enL=pct(p.entry), pxL=pct(p.price);
+ const mk=(l,lab,cls,val)=>`<div class="mk ${cls}" style="left:${l}%">
+   <div class="dot" style="background:${cls==='price'?'':cls==='sl'?'var(--loss)':cls==='tp'?'var(--gain)':'var(--mut)'}"></div>
+   <div class="lb">${lab}<br>$${val.toFixed(1)}</div></div>`;
+ return `<div class="gauge"><div class="track"></div>
+   ${mk(slL,'SL','sl',p.stop)}${mk(enL,'entry','en',p.entry)}${mk(tpL,'TP','tp',p.target)}${mk(pxL,'now','price',p.price)}</div>`;
+}
+function render(d){
+ $('modepill').textContent=(d.mode||'?').toUpperCase();
+ const sp=d.spot&&d.spot.price;
+ $('price').textContent=sp?('$'+sp.toFixed(2)):'—';
+ const bk=d.broker||{};
+ const bks=bk.name==='oanda'?`<span class="dotc" style="background:${bk.connected?'var(--gain)':'var(--loss)'}"></span>OANDA ${bk.env} · ${bk.connected?(bk.balance+' '+(bk.currency||'')):'off'}`:'<span class="dotc" style="background:var(--mut)"></span>paper (simulated)';
+ $('sub').innerHTML=`${bks} · updated ${d.spot?ageStr(Date.now()/1000-d.spot.ts):'—'} ago`;
+ const sig=d.signal||{};
+ // position + gauge
+ const pos=d.open_position;
+ if(pos&&sp){
+   const pnl=((sp-pos.entry)*(pos.side==='short'?-1:1))*pos.qty_oz;
+   $('posbody').innerHTML=
+     `<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <span class="pill ${pos.side}">${pos.side}</span>
+        <span class="mono">${pos.qty_oz.toFixed(3)} oz @ $${pos.entry.toFixed(2)}</span>
+        <span class="big mono ${pnl>=0?'gain':'loss'}" style="margin-left:auto">${money(pnl)}</span></div>`
+     +gauge({side:pos.side,entry:pos.entry,stop:pos.stop,target:pos.target,price:sp});
+ }else{
+   const wait=sig.trend_up?'uptrend — waiting for RSI dip':sig.trend_down?'downtrend — waiting for RSI pop':'no clear trend';
+   $('posbody').innerHTML=`<span class="mut">flat · ${wait}</span>`;
+ }
+ // account
+ $('equity').textContent='$'+(d.equity||0).toLocaleString(undefined,{maximumFractionDigits:0});
+ const cl=(d.trades||[]).filter(t=>t.status==='closed');
+ const wins=cl.filter(t=>t.pnl>0).length;
+ const day=cl.filter(t=>t.close&&(Date.now()/1000-t.close)<86400);
+ const dpl=day.reduce((a,t)=>a+(t.pnl||0),0);
+ $('daypl').innerHTML=`<span class="${dpl>=0?'gain':'loss'}">${money(dpl)}</span>`;
+ $('tdy').textContent=day.length;
+ $('wr').textContent=cl.length?Math.round(100*wins/cl.length)+'%':'—';
+ // signal
+ $('trend').innerHTML=sig.trend_up?'<span class="gain">UP</span>':sig.trend_down?'<span class="loss">DOWN</span>':'<span class="mut">flat</span>';
+ $('bias').textContent=(sig.macro_bias>=0?'+':'')+(sig.macro_bias??'—');
+ $('rsi').textContent=sig.rsi_5m??'—';
+ const ns=d.news_sentiment;
+ $('news_ai').innerHTML=ns?`<span class="${ns.net>0?'gain':ns.net<0?'loss':'mut'}">${ns.net>0?'+':''}${ns.net}</span> <span class="mut">(${ns.counts['+']}▲/${ns.counts['-']}▼)</span>`:'—';
+ if(d.next_event){const m=(d.next_event.ts-Date.now()/1000)/60;
+   $('nextev').innerHTML=m>0&&m<2880?`${d.next_event.ccy} ${d.next_event.title.substr(0,22)} <span class="gold">in ${m<60?(m|0)+'m':(m/60).toFixed(1)+'h'}</span>`:'—';}
+ // best/worst
+ const bt=t=>t?`${t.side} $${(t.entry||0).toFixed(0)}→$${(t.exit||0).toFixed(0)} ${money(t.pnl)}`:'—';
+ $('best').textContent=bt(d.best_trade); $('worst').textContent=bt(d.worst_trade);
+ // orders
+ $('orders').innerHTML=(d.trades||[]).slice(0,8).map(t=>{
+   const open=t.status==='open';
+   return `<div class="row"><span class="t">${hhmm(t.open)}</span>
+     <span class="pill ${t.side}">${t.side}</span>
+     <span class="mono mut">@$${(t.entry||0).toFixed(1)}</span>
+     <span class="mono" style="margin-left:auto">${open?'<span class="gold">OPEN · SL '+(t.stop||0).toFixed(0)+' / TP '+(t.target||0).toFixed(0)+'</span>':'<span class="'+(t.pnl>=0?'gain':'loss')+'">'+money(t.pnl||0)+'</span>'}</span></div>`;
+ }).join('')||'<span class="mut">no trades yet</span>';
+ // news
+ $('news').innerHTML=(d.news||[]).slice(0,8).map(n=>
+   `<div class="row"><span class="tilt ${n.tilt==='+'?'gain':n.tilt==='-'?'loss':'mut'}">${n.tilt||'·'}</span>
+    <a href="${n.link||'#'}" target="_blank">${(n.title||'').replace(/</g,'&lt;')}</a></div>`).join('')||'<span class="mut">—</span>';
+ // commentary + learnings
+ if(d.commentary&&d.commentary.text)$('commentary').innerHTML=`<span class="when">${hhmm(d.commentary.ts)} UTC</span>${d.commentary.text.replace(/</g,'&lt;')}`;
+ if(d.learnings&&d.learnings.text)$('learnings').innerHTML=`<span class="when">${hhmm(d.learnings.ts)} UTC</span>${d.learnings.text.replace(/</g,'&lt;')}`;
+ // schedule
+ $('sched').innerHTML=(d.schedule||[]).map(s=>`<div class="kv"><span class="l">${s.what}</span><span class="mono">${s.when}</span></div>`).join('');
+}
+async function tick(){try{const r=await fetch('gold_chart_data.json?t='+Date.now(),{cache:'no-store'});render(await r.json());}catch(e){$('sub').textContent='feed unavailable — '+e;}}
+tick();setInterval(tick,15000);
+</script></body></html>
